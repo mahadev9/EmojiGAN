@@ -8,9 +8,15 @@ import discriminator as disc
 
 
 class GenerativeAdversarialNetwork(nn.Module):
-    def __init__(self, learning_rate=0.0002, epochs=10):
+    def __init__(self, img_size=64, latent_dim=100, n_features=64, learning_rate=0.0002, epochs=10):
         super(GenerativeAdversarialNetwork, self).__init__()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.image_size = img_size
+        self.latent_dim = latent_dim
+        self.features = n_features
+
+        self.real_label = 1
+        self.fake_label = 0
 
         self.netG = gen.Generator().to(self.device)
         self.netD = disc.Discriminator().to(self.device)
@@ -50,15 +56,15 @@ class GenerativeAdversarialNetwork(nn.Module):
 
                 real_cpu = data[0].to(self.device)
                 b_size = real_cpu.size(0)
-                label = torch.full((b_size,), real_label, dtype=torch.float, device=self.device)
+                label = torch.full((b_size,), self.real_label, dtype=torch.float, device=self.device)
                 output = self.netD(real_cpu).view(-1)
                 errD_real = self.criterion(output, label)
                 errD_real.backward()
                 D_x = output.mean().item()
 
-                noise = torch.randn(b_size, nz, 1, 1, device=self.device)
+                noise = torch.randn(b_size, self.latent_dim, 1, 1, device=self.device)
                 fake = self.netG(noise)
-                label.fill_(fake_label)
+                label.fill_(self.fake_label)
                 output = self.netD(fake.detach()).view(-1)
                 errD_fake = self.criterion(output, label)
                 errD_fake.backward()
@@ -67,7 +73,7 @@ class GenerativeAdversarialNetwork(nn.Module):
                 self.optimizerD.step()
 
                 self.netG.zero_grad()
-                label.fill_(real_label)
+                label.fill_(self.real_label)
                 output = self.netD(fake).view(-1)
                 errG = self.criterion(output, label)
                 errG.backward()
@@ -83,9 +89,10 @@ class GenerativeAdversarialNetwork(nn.Module):
                 self.D_losses.append(errD.item())
 
     def test(self):
-        fixed_noise = torch.randn(64, nz, 1, 1, device=self.device)
+        fixed_noise = torch.randn(64, self.latent_dim, 1, 1, device=self.device)
         with torch.no_grad():
             fake = self.netG(fixed_noise).detach().cpu()
+            return fake
 
     def plot_loss(self):
         plt.figure(figsize=(10,5))
