@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
+import torchvision.utils as vutils
 import matplotlib.pyplot as plt
 
 import GAN as gan
@@ -45,7 +46,9 @@ ganModel.train(dataloader)
 ganModel.plot_loss()
 generated_img = ganModel.test(TEST_SAMPLES)
 
+img_list = []
 fig = plt.figure(figsize=(4,4))
 plt.axis("off")
-plt.imshow(generated_img)
+img_list.append(vutils.make_grid(generated_img, padding=2, normalize=True))
+plt.imshow(np.transpose(img_list[0], (1, 2, 0)))
 

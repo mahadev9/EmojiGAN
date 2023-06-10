@@ -80,9 +80,9 @@ class GenerativeAdversarialNetwork(nn.Module):
                 D_G_z2 = output.mean().item()
                 self.optimizerG.step()
 
-                if i % 5 == 0:
+                if (i+1) % 5 == 0:
                     print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                          % (epoch, self.epochs, i, len(dataloader),
+                          % (epoch+1, self.epochs, i+1, len(dataloader),
                             errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
 
                 self.G_losses.append(errG.item())
