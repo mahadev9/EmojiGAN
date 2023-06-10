@@ -39,16 +39,20 @@ ganModel = gan.GenerativeAdversarialNetwork(
     latent_dim=LATENT_DIM,
     n_features=64,
     learning_rate=0.0002,
-    epochs=2
+    epochs=1
 )
 
 ganModel.train(dataloader)
 ganModel.plot_loss()
 generated_img = ganModel.test(TEST_SAMPLES)
 
-img_list = []
-fig = plt.figure(figsize=(4,4))
+fig = plt.subplots(figsize=(4, 4))
 plt.axis("off")
-img_list.append(vutils.make_grid(generated_img, padding=2, normalize=True))
-plt.imshow(np.transpose(img_list[0], (1, 2, 0)))
+for i in range(TEST_SAMPLES):
+    plt.subplot(4, 4, i + 1)
+    img = np.transpose(generated_img[i], (1, 2, 0))
+    min_val = np.min(img)
+    max_val = np.max(img)
+    img = (img - min_val) / (max_val - min_val)
+    plt.imshow(img)
 
