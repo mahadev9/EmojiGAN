@@ -1,5 +1,6 @@
 import os
 import torch
+import numpy as np
 import pandas as pd
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
@@ -16,6 +17,7 @@ DEVICE_TYPE = 'Apple'
 IMAGE_SIZE = 72
 BATCH_SIZE = 64
 LATENT_DIM = 100
+TEST_SAMPLES = 16
 
 
 dataset = pd.read_csv(os.path.join(DATASET_PATH, DATASET_NAME))
@@ -31,13 +33,19 @@ dataset_images = dset.ImageFolder(root=os.path.join(DATASET_PATH, DATASET_IMAGES
 
 dataloader = torch.utils.data.DataLoader(dataset_images, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
-gan = gan.GenerativeAdversarialNetwork(
+ganModel = gan.GenerativeAdversarialNetwork(
     img_size=IMAGE_SIZE,
     latent_dim=LATENT_DIM,
     n_features=64,
     learning_rate=0.0002,
-    epochs=10
+    epochs=2
 )
 
-print(gan.train(dataloader))
+ganModel.train(dataloader)
+ganModel.plot_loss()
+generated_img = ganModel.test(TEST_SAMPLES)
+
+fig = plt.figure(figsize=(4,4))
+plt.axis("off")
+plt.imshow(generated_img)
 

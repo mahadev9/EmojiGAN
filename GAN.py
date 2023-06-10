@@ -80,7 +80,7 @@ class GenerativeAdversarialNetwork(nn.Module):
                 D_G_z2 = output.mean().item()
                 self.optimizerG.step()
 
-                if i % 50 == 0:
+                if i % 5 == 0:
                     print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
                           % (epoch, self.epochs, i, len(dataloader),
                             errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
@@ -88,8 +88,8 @@ class GenerativeAdversarialNetwork(nn.Module):
                 self.G_losses.append(errG.item())
                 self.D_losses.append(errD.item())
 
-    def test(self):
-        fixed_noise = torch.randn(64, self.latent_dim, 1, 1, device=self.device)
+    def test(self, test_samples):
+        fixed_noise = torch.randn(test_samples, self.latent_dim, 1, 1, device=self.device)
         with torch.no_grad():
             fake = self.netG(fixed_noise).detach().cpu()
             return fake
